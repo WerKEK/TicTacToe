@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QTabBar>
 #include <vector>
+#include <QNetworkInterface>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,7 +12,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->tabWidget->tabBar()->hide();
     ui->tabWidget->setCurrentIndex(0);
-    ui->label_IP->setText("Your IP: "+ static_cast<QString>(QHostAddress::LocalHost));
+
+
+
+    ui->label_IP->setText("Your IP: " + QHostAddress(QHostAddress::LocalHost).toString());
     ui->labe_Port->setText("Your Port: 1111");
     ui->radioButton_X->setChecked(true);
 
@@ -29,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     udpSocket = new QUdpSocket(this);
-    udpSocket->bind(QHostAddress::LocalHost, 1111); //Aдресс и порт для сокета, на которые он будет получать данные
+    udpSocket->bind(QHostAddress::Any, 1111); //Aдресс и порт для сокета, на которые он будет получать данные
     connect(udpSocket, SIGNAL(readyRead()), this, SLOT(ReadingData()));
 
     for(auto btn:buttons){
@@ -43,12 +47,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::fieldButtonClicked()
 {
-    QPushButton* buttonClicked = static_cast<QPushButton*>(sender());
+    QPushButton* buttonClicked = dynamic_cast<QPushButton*>(sender()); //Динамик для указателей, возвращает указатель
+    if(buttonClicked == nullptr || !buttonClicked->text().isEmpty())
+        return;
 
     sendingData(buttonClicked->objectName());
-
     buttonClicked->setText(getSymbol());
-
     checkingWinner();
 
 }
